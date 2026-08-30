@@ -168,3 +168,57 @@ yang udah dibuat tetep aman, karena itu udah kesimpen ke database).
 - Validasi produk yang disebut AI beneran ada sebelum eksekusi (udah ada, tapi bisa ditambah fuzzy match kalo salah ketik nama produk)
 - Command `/riwayat` di bot admin buat liat order terakhir
 - Simpan riwayat chat ke database (bukan cuma di browser) biar gak hilang pas refresh
+
+---
+
+## Pengembangan Tugas Practice 13
+
+Project ini dikembangkan (bukan dibangun ulang) dengan tambahan berikut. Bukti lengkap
+beserta screenshot ada di [`tugas.md`](tugas.md).
+
+### Yang ditambahkan
+
+| Fitur | File utama |
+|---|---|
+| Login 2 role (admin & customer) | `models/user.model.js`, `services/auth.service.js`, `controllers/auth.controller.js`, `middlewares/auth.middleware.js` |
+| CRUD produk oleh admin | `controllers/admin.controller.js`, `services/product.service.js`, `views/admin/` |
+| Multiple order dalam 1 transaksi | `models/orderItem.model.js`, `services/order.service.js`, `public/js/cart.js` |
+| Invoice + ubah status pesanan | `controllers/admin.controller.js`, `utils/orderStatus.js`, `views/partials/invoice-detail-body.ejs` |
+| 25 produk & 3 akun demo | `seeders/seed.js` |
+| Perbaikan UI | `views/partials/` (nav, badge, status-badge, stat-card, head) |
+
+### Struktur order yang baru
+
+```
+Order (header: pembeli, total, status, sumber)
+  └──< OrderItem (produk, qty, harga saat dibeli) >── Product
+```
+
+Dulu 1 order = 1 produk (kolom `productId` nempel di tabel `orders`), sekarang 1 order
+bisa banyak produk. Proses simpannya dibungkus **database transaction**, jadi kalau ada
+satu item yang stoknya kurang, seluruh pesanan dibatalkan (gak ada stok yang kepotong
+sebagian).
+
+### Role & proteksi halaman
+
+| Route | Akses |
+|---|---|
+| `/login`, `/register` | publik |
+| `/`, `/checkout`, `/invoice`, `/invoice/:id` | customer (login) |
+| `/admin/**` | admin saja (`requireRole('admin')`) |
+
+Habis login, admin diarahkan ke `/admin`, customer ke `/` — beda role, beda tampilan.
+
+### Akun demo (dari seeder)
+
+| Role | Username | Password |
+|---|---|---|
+| Admin | `admin` | `admin123` |
+| Customer | `budi` | `budi123` |
+| Customer | `sari` | `sari123` |
+
+### Catatan
+
+`TELEGRAM_BOT_TOKEN` dan `GEMINI_API_KEY` sifatnya opsional. Kalau dikosongkan di
+`.env`, aplikasi web tetap jalan penuh — cuma notifikasi Telegram & chat AI yang
+otomatis nonaktif (ada warning di console, bukan crash).
