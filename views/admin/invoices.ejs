@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head', { pageTitle: 'Kelola Invoice' }) %>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <%- include('../partials/nav', { active: 'invoice' }) %>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <h2 class="font-bold text-gray-800 text-lg mb-1">Kelola Invoice</h2>
+    <p class="text-sm text-gray-500 mb-4"><%= orders.length %> pesanan masuk</p>
+
+    <% if (notice) { %>
+      <div class="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-4 text-sm"><%= notice %></div>
+    <% } %>
+
+    <% if (orders.length === 0) { %>
+      <div class="bg-white border border-gray-200 rounded-2xl p-10 text-center text-gray-400">Belum ada pesanan masuk.</div>
+    <% } else { %>
+      <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="text-xs text-gray-400 bg-gray-50">
+            <tr>
+              <th class="text-left px-4 py-2.5">Invoice</th>
+              <th class="text-left px-3 py-2.5">Pembeli</th>
+              <th class="text-center px-3 py-2.5">Item</th>
+              <th class="text-right px-3 py-2.5">Total</th>
+              <th class="text-center px-3 py-2.5">Status</th>
+              <th class="text-right px-4 py-2.5">Tanggal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach(function (o) { %>
+              <tr class="border-t border-gray-100 hover:bg-gray-50">
+                <td class="px-4 py-3">
+                  <a href="/admin/invoice/<%= o.id %>" class="font-semibold text-brand-600">INV-<%= String(o.id).padStart(5,'0') %></a>
+                  <p class="text-[11px] text-gray-400"><%= o.source === 'chat-ai' ? '💬 chat AI' : '🛒 web' %></p>
+                </td>
+                <td class="px-3 py-3 text-gray-700"><%= o.buyerName %></td>
+                <td class="px-3 py-3 text-center text-gray-500"><%= o.items.length %> jenis</td>
+                <td class="px-3 py-3 text-right font-semibold text-gray-800"><%= formatRupiah(o.total) %></td>
+                <td class="px-3 py-3 text-center"><%- include('../partials/status-badge', { status: o.status }) %></td>
+                <td class="px-4 py-3 text-right text-xs text-gray-400">
+                  <%= new Date(o.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head', { pageTitle: 'Kelola Produk' }) %>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <%- include('../partials/nav', { active: 'produk' }) %>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="font-bold text-gray-800 text-lg">Kelola Produk</h2>
+        <p class="text-sm text-gray-500"><%= products.length %> produk terdaftar</p>
+      </div>
+      <a href="/admin/produk/baru" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg">
+        + Tambah Produk
+      </a>
+    </div>
+
+    <% if (notice) { %>
+      <div class="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-4 text-sm"><%= notice %></div>
+    <% } %>
+
+    <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="text-xs text-gray-400 bg-gray-50">
+          <tr>
+            <th class="text-left px-4 py-2.5">#</th>
+            <th class="text-left px-3 py-2.5">Nama Produk</th>
+            <th class="text-right px-3 py-2.5">Harga</th>
+            <th class="text-center px-3 py-2.5">Stok</th>
+            <th class="text-right px-4 py-2.5">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% products.forEach(function (p) { %>
+            <tr class="border-t border-gray-100 hover:bg-gray-50">
+              <td class="px-4 py-3 text-gray-400"><%= p.id %></td>
+              <td class="px-3 py-3">
+                <p class="font-semibold text-gray-800"><%= p.name %></p>
+                <p class="text-xs text-gray-400 truncate max-w-md"><%= p.description || '-' %></p>
+              </td>
+              <td class="px-3 py-3 text-right font-semibold text-gray-700"><%= formatRupiah(p.price) %></td>
+              <td class="px-3 py-3 text-center">
+                <%- include('../partials/badge', {
+                      label: p.stock > 0 ? String(p.stock) : 'Habis',
+                      color: p.stock === 0 ? 'red' : (p.stock <= 5 ? 'yellow' : 'green')
+                    }) %>
+              </td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <a href="/admin/produk/<%= p.id %>/edit" class="text-brand-600 font-semibold text-xs px-2 py-1 rounded hover:bg-brand-50">Edit</a>
+                <form method="POST" action="/admin/produk/<%= p.id %>/hapus" class="inline"
+                      onsubmit="return confirm('Hapus produk <%= p.name.replace(/'/g, "") %>?')">
+                  <button class="text-red-600 font-semibold text-xs px-2 py-1 rounded hover:bg-red-50">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

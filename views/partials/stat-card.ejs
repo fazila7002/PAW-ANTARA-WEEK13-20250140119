@@ -1,0 +1,11 @@
+<%
+// 🛡️ DRY: satu komponen kartu statistik, dipake 4x di dashboard admin.
+const warna = {
+  blue: 'text-brand-600', green: 'text-green-600',
+  yellow: 'text-yellow-600', purple: 'text-purple-600',
+};
+%>
+<div class="bg-white border border-gray-200 rounded-2xl px-4 py-3">
+  <p class="text-xs text-gray-400"><%= label %></p>
+  <p class="text-xl font-bold <%= warna[color] || warna.blue %> mt-1"><%= value %></p>
+</div>

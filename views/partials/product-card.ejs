@@ -1,43 +1,36 @@
 <%
+// 🛡️ DRY: satu komponen kartu produk dipake di katalog customer.
+// Tombolnya sekarang "Tambah ke Keranjang" (bukan langsung 1 order),
+// karena checkout-nya dikumpulin dulu biar bisa banyak produk sekaligus.
 const isAvailable = product.stock > 0;
-const badgeLabel = isAvailable ? `Stok: ${product.stock}` : 'Habis';
-const badgeColor = isAvailable ? 'green' : 'red';
+const badgeLabel = isAvailable ? `Stok ${product.stock}` : 'Habis';
+const badgeColor = isAvailable ? (product.stock <= 5 ? 'yellow' : 'green') : 'red';
 %>
-<div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-  <div class="flex items-start justify-between mb-2">
-    <h3 class="font-semibold text-gray-800"><%= product.name %></h3>
+<div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col">
+  <div class="flex items-start justify-between gap-2 mb-2">
+    <h3 class="font-semibold text-gray-800 leading-snug"><%= product.name %></h3>
     <%- include('badge', { label: badgeLabel, color: badgeColor }) %>
   </div>
-  <p class="text-sm text-gray-500 mb-3"><%= product.description || 'Tanpa deskripsi' %></p>
-  <p class="text-blue-600 font-bold mb-3">Rp<%= product.price.toLocaleString('id-ID') %></p>
+
+  <p class="text-sm text-gray-500 mb-3 flex-1"><%= product.description || 'Tanpa deskripsi' %></p>
+
+  <p class="text-brand-600 font-bold text-lg mb-3"><%= formatRupiah(product.price) %></p>
 
   <% if (isAvailable) { %>
-    <form method="POST" action="/order" class="space-y-2">
-      <input type="hidden" name="productId" value="<%= product.id %>" />
-      <input
-        type="text"
-        name="buyerName"
-        placeholder="Nama kamu"
-        required
-        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-      />
-      <div class="flex gap-2">
-        <input
-          type="number"
-          name="quantity"
-          value="1"
-          min="1"
-          max="<%= product.stock %>"
-          required
-          class="w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-        />
-        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg">
-          Pesan Sekarang
-        </button>
-      </div>
-    </form>
+    <div class="flex gap-2">
+      <input type="number" value="1" min="1" max="<%= product.stock %>"
+             class="qty-input w-16 border border-gray-300 rounded-lg px-2 py-2 text-sm text-center"
+             data-id="<%= product.id %>" />
+      <button
+        class="add-to-cart-btn flex-1 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
+        data-id="<%= product.id %>"
+        data-name="<%= product.name %>"
+        data-price="<%= product.price %>"
+        data-stock="<%= product.stock %>"
+      >+ Keranjang</button>
+    </div>
   <% } else { %>
-    <button disabled class="w-full bg-gray-200 text-gray-400 text-sm font-semibold py-2 rounded-lg cursor-not-allowed">
+    <button disabled class="w-full bg-gray-100 text-gray-400 text-sm font-semibold py-2 rounded-lg cursor-not-allowed">
       Stok Habis
     </button>
   <% } %>

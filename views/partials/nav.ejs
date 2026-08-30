@@ -1,18 +1,47 @@
-<header class="bg-white border-b border-gray-200 py-4 px-6 mb-6">
-  <div class="max-w-5xl mx-auto flex items-center justify-between">
-    <div>
-      <h1 class="text-xl font-bold text-gray-800"><%= storeName %></h1>
-      <p class="text-sm text-gray-500">Belanja & tanya-tanya lewat chat AI</p>
+<%
+// 🛡️ DRY: satu navbar dipake SEMUA halaman. Isinya nyesuain sendiri
+// sama role user yang login (customer vs admin), jadi gak perlu bikin
+// dua file navbar terpisah yang isinya mirip-mirip.
+const menu = user && user.role === 'admin'
+  ? [
+      { href: '/admin', label: 'Dashboard', key: 'dashboard' },
+      { href: '/admin/produk', label: 'Kelola Produk', key: 'produk' },
+      { href: '/admin/invoice', label: 'Invoice', key: 'invoice' },
+    ]
+  : [
+      { href: '/', label: 'Katalog & Chat', key: 'katalog' },
+      { href: '/invoice', label: 'Pesanan Saya', key: 'invoice' },
+    ];
+%>
+<header class="bg-white border-b border-gray-200 sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-brand-600 text-white grid place-items-center font-bold">🛍️</div>
+      <div>
+        <h1 class="font-bold text-gray-800 leading-tight"><%= storeName %></h1>
+        <p class="text-xs text-gray-400">
+          <%= user && user.role === 'admin' ? 'Panel Admin' : 'Belanja & tanya lewat chat AI' %>
+        </p>
+      </div>
     </div>
-    <nav class="flex gap-2">
-      <a
-        href="/"
-        class="px-3 py-1.5 text-sm rounded-lg font-medium <%= active === 'katalog' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600' %>"
-      >Katalog & Chat</a>
-      <a
-        href="/invoices"
-        class="px-3 py-1.5 text-sm rounded-lg font-medium <%= active === 'invoice' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600' %>"
-      >Invoice</a>
+
+    <nav class="flex items-center gap-1.5">
+      <% menu.forEach(function (m) { %>
+        <a href="<%= m.href %>"
+           class="px-3 py-1.5 text-sm rounded-lg font-medium <%= active === m.key ? 'bg-brand-600 text-white' : 'text-gray-600 hover:bg-gray-100' %>">
+          <%= m.label %>
+        </a>
+      <% }) %>
+
+      <% if (user) { %>
+        <span class="hidden sm:inline-block ml-2 pl-3 border-l border-gray-200 text-xs text-gray-500">
+          <%= user.name %>
+          <span class="ml-1 px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold uppercase"><%= user.role %></span>
+        </span>
+        <form method="POST" action="/logout" class="ml-1">
+          <button class="text-sm text-red-600 font-medium px-2 py-1.5 rounded-lg hover:bg-red-50">Logout</button>
+        </form>
+      <% } %>
     </nav>
   </div>
 </header>

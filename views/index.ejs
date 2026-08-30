@@ -1,64 +1,95 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= storeName %></title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <%- include('partials/head', { pageTitle: 'Katalog' }) %>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <%- include('partials/nav', { storeName, active: 'katalog' }) %>
+  <%- include('partials/nav', { active: 'katalog' }) %>
 
-  <main class="max-w-5xl mx-auto px-4 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <main class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     <!-- KATALOG -->
     <section class="lg:col-span-2">
       <% if (error) { %>
-        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
+        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">
           <%= error %>
         </div>
       <% } %>
 
-      <h2 class="font-semibold text-gray-700 mb-3">Produk Kami</h2>
-      <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="flex items-end justify-between mb-3 gap-3">
+        <div>
+          <h2 class="font-bold text-gray-800 text-lg">Produk Kami</h2>
+          <p class="text-xs text-gray-400"><%= products.length %> produk tersedia</p>
+        </div>
+        <input id="search-input" type="search" placeholder="Cari produk..."
+               class="w-48 sm:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+      </div>
+
+      <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <% products.forEach(function(product) { %>
           <%- include('partials/product-card', { product }) %>
         <% }) %>
       </div>
-      <p class="text-xs text-gray-400 mt-3">
-        Bisa pesan langsung lewat form di atas, ATAU chat sama asisten AI di samping →
-        bandingin produk, minta rekomendasi, terus bilang aja mau beli.
+
+      <p id="empty-search" class="hidden text-center text-gray-400 py-10 text-sm">
+        Produk yang kamu cari gak ketemu.
       </p>
     </section>
 
-    <!-- CHAT WIDGET -->
-    <section class="bg-white border border-gray-200 rounded-xl flex flex-col h-[600px] sticky top-6">
-      <div class="border-b border-gray-200 px-4 py-3">
-        <h2 class="font-semibold text-gray-700">💬 Tanya / Pesan lewat Chat</h2>
-        <p class="text-xs text-gray-400">Coba: "bagusan produk A apa B?" atau "aku beli produk A 3 biji atas nama Budi"</p>
+    <!-- KOLOM KANAN: KERANJANG + CHAT -->
+    <section class="space-y-4 lg:sticky lg:top-20 self-start">
+
+      <!-- KERANJANG (kunci fitur multiple order) -->
+      <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div class="border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+          <h2 class="font-semibold text-gray-700">🧺 Keranjang</h2>
+          <span id="cart-count" class="text-xs font-semibold bg-brand-100 text-brand-700 px-2 py-1 rounded-full">0 item</span>
+        </div>
+
+        <div id="cart-items" class="max-h-64 overflow-y-auto px-4 py-3 space-y-2 text-sm"></div>
+
+        <form method="POST" action="/checkout" id="checkout-form" class="border-t border-gray-200 px-4 py-3 space-y-3">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-500">Total</span>
+            <span id="cart-total" class="font-bold text-gray-800 text-lg">Rp0</span>
+          </div>
+
+          <input type="hidden" name="items" id="cart-payload" />
+          <input type="text" name="buyerName" value="<%= user.name %>" required
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Nama pemesan" />
+
+          <button id="checkout-btn" disabled
+                  class="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm font-semibold py-2.5 rounded-lg">
+            Checkout Semua
+          </button>
+          <p class="text-[11px] text-gray-400 text-center">
+            Isi keranjang dengan beberapa jenis produk sekaligus — semuanya masuk dalam 1 invoice.
+          </p>
+        </form>
       </div>
 
-      <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-3 space-y-3"></div>
+      <!-- CHAT WIDGET -->
+      <div class="bg-white border border-gray-200 rounded-2xl flex flex-col h-[420px]">
+        <div class="border-b border-gray-200 px-4 py-3">
+          <h2 class="font-semibold text-gray-700">💬 Tanya / Pesan lewat Chat</h2>
+          <p class="text-xs text-gray-400">Coba: "bagusan produk A apa B?"</p>
+        </div>
 
-      <form id="chat-form" class="border-t border-gray-200 p-3 flex gap-2">
-        <input
-          id="chat-input"
-          type="text"
-          placeholder="Tanya atau pesan produk..."
-          class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          autocomplete="off"
-        />
-        <button
-          id="chat-submit"
-          type="submit"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold"
-        >Kirim</button>
-      </form>
+        <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-3 space-y-3"></div>
+
+        <form id="chat-form" class="border-t border-gray-200 p-3 flex gap-2">
+          <input id="chat-input" type="text" placeholder="Tanya atau pesan produk..." autocomplete="off"
+                 class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          <button id="chat-submit" type="submit"
+                  class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">Kirim</button>
+        </form>
+      </div>
     </section>
 
   </main>
 
   <script src="/js/store.js"></script>
+  <script src="/js/cart.js"></script>
   <script src="/js/utils/formatChatText.js"></script>
   <script src="/js/chat.js"></script>
 </body>

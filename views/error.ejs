@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('partials/head', { pageTitle: title }) %>
+</head>
+<body class="bg-gray-50 min-h-screen grid place-items-center px-4">
+  <main class="max-w-md text-center bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+    <div class="text-4xl mb-3">🚧</div>
+    <h1 class="text-xl font-bold text-gray-800 mb-2"><%= title %></h1>
+    <p class="text-sm text-gray-500 mb-5"><%= message %></p>
+    <a href="<%= backUrl %>" class="inline-block bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg">
+      Kembali
+    </a>
+  </main>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<%
+// 🛡️ DRY: rincian invoice ini dipake DUA KALI — halaman invoice customer
+// (views/invoice-detail.ejs) dan halaman invoice admin
+// (views/admin/invoice-detail.ejs). Ditulis sekali, dipakai dua-duanya.
+%>
+<div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+  <div class="px-5 py-4 border-b border-gray-200 flex items-start justify-between gap-3">
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide">Invoice</p>
+      <h2 class="text-xl font-bold text-gray-800">INV-<%= String(order.id).padStart(5, '0') %></h2>
+      <p class="text-sm text-gray-500 mt-1">
+        <%= new Date(order.createdAt).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) %>
+      </p>
+    </div>
+    <%- include('status-badge', { status: order.status }) %>
+  </div>
+
+  <div class="px-5 py-4 border-b border-gray-200 grid grid-cols-2 gap-3 text-sm">
+    <div>
+      <p class="text-gray-400 text-xs">Atas nama</p>
+      <p class="font-semibold text-gray-800"><%= order.buyerName %></p>
+    </div>
+    <div>
+      <p class="text-gray-400 text-xs">Sumber pesanan</p>
+      <p class="font-semibold text-gray-800"><%= order.source === 'chat-ai' ? '💬 Chat AI' : '🛒 Web' %></p>
+    </div>
+  </div>
+
+  <div class="px-5 py-4">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-3">
+      Rincian Produk (<%= order.items.length %> jenis)
+    </p>
+
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-xs text-gray-400 border-b border-gray-100">
+          <th class="pb-2">Produk</th>
+          <th class="pb-2 text-center">Qty</th>
+          <th class="pb-2 text-right">Harga</th>
+          <th class="pb-2 text-right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% order.items.forEach(function (item) { %>
+          <tr class="border-b border-gray-50">
+            <td class="py-2 text-gray-800"><%= item.productName %></td>
+            <td class="py-2 text-center text-gray-600"><%= item.quantity %></td>
+            <td class="py-2 text-right text-gray-600"><%= formatRupiah(item.price) %></td>
+            <td class="py-2 text-right font-semibold text-gray-800"><%= formatRupiah(item.price * item.quantity) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="pt-3 text-right font-semibold text-gray-600">Total</td>
+          <td class="pt-3 text-right font-bold text-brand-600 text-lg"><%= formatRupiah(order.total) %></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>

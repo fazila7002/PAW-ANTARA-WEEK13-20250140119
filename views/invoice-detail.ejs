@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('partials/head', { pageTitle: 'Invoice' }) %>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <%- include('partials/nav', { active: 'invoice' }) %>
+
+  <main class="max-w-2xl mx-auto px-4 py-6">
+    <% if (baru) { %>
+      <div class="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-4 text-sm">
+        ✅ Pesanan berhasil dibuat! Semua produk di keranjang masuk ke invoice ini.
+      </div>
+    <% } %>
+
+    <%- include('partials/invoice-detail-body', { order }) %>
+
+    <a href="/invoice" class="inline-block mt-4 text-sm text-brand-600 font-semibold">← Balik ke daftar pesanan</a>
+  </main>
+</body>
+</html>
