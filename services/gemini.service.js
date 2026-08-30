@@ -92,11 +92,13 @@ async function executeBuatPesanan({ namaProduk, jumlah, namaPembeli }) {
     };
   }
 
-  // 🛡️ DRY: fungsi yang SAMA PERSIS dipake form manual di halaman web
+  // 🛡️ DRY: fungsi yang SAMA PERSIS dipake checkout keranjang di halaman web.
+  // Sekarang createOrder() nerima ARRAY items (dukungan multiple order), jadi
+  // pesanan dari AI dibungkus jadi array 1 item — logic bisnisnya tetep satu.
   const result = await orderService.createOrder({
-    productId: product.id,
-    quantity: Math.round(jumlah),
+    items: [{ productId: product.id, quantity: Math.round(jumlah) }],
     buyerName: namaPembeli,
+    source: 'chat-ai',
   });
 
   return result;

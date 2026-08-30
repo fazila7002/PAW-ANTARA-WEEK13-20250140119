@@ -44,4 +44,79 @@ function formatProductListText(products) {
   return lines.join('\n\n');
 }
 
-module.exports = { getAllProducts, getProductById, formatProductListText };
+/**
+ * 🛡️ CRUD ADMIN — validasi & normalisasi input ditaruh di service (SATU tempat),
+ * bukan diulang di tiap controller. Jadi kalau nanti produk juga bisa
+ * ditambah lewat API atau bot, aturannya tetep sama persis.
+ */
+function validateProductInput({ name, price, stock, description }) {
+  const errors = [];
+
+  if (!name || !String(name).trim()) errors.push('Nama produk wajib diisi');
+  if (String(name || '').trim().length > 100) errors.push('Nama produk maksimal 100 karakter');
+
+  const hargaAngka = Number(price);
+  if (!Number.isFinite(hargaAngka) || hargaAngka <= 0) errors.push('Harga harus angka lebih dari 0');
+
+  const stokAngka = Number(stock);
+  if (!Number.isInteger(stokAngka) || stokAngka < 0) errors.push('Stok harus angka bulat minimal 0');
+
+  return {
+    errors,
+    data: {
+      name: String(name || '').trim(),
+      description: String(description || '').trim(),
+      price: Math.round(hargaAngka) || 0,
+      stock: stokAngka || 0,
+    },
+  };
+}
+
+async function createProduct(input) {
+  const { errors, data } = validateProductInput(input);
+  if (errors.length) return { success: false, errors };
+
+  const product = await Product.create(data);
+  return { success: true, product };
+}
+
+async function updateProduct(id, input) {
+  const product = await Product.findByPk(id);
+  if (!product) return { success: false, errors: ['Produk gak ditemukan'] };
+
+  const { errors, data } = validateProductInput(input);
+  if (errors.length) return { success: false, errors };
+
+  await product.update(data);
+  return { success: true, product };
+}
+
+async function deleteProduct(id) {
+  const product = await Product.findByPk(id);
+  if (!product) return { success: false, message: 'Produk gak ditemukan' };
+
+  const nama = product.name;
+  await product.destroy();
+  return { success: true, message: `Produk "${nama}" berhasil dihapus` };
+}
+
+/** Ringkasan stok buat dashboard admin. */
+async function getProductStats() {
+  const products = await getAllProducts();
+  return {
+    total: products.length,
+    habis: products.filter((p) => p.stock === 0).length,
+    menipis: products.filter((p) => p.stock > 0 && p.stock <= 5).length,
+  };
+}
+
+module.exports = {
+  getAllProducts,
+  getProductById,
+  formatProductListText,
+  validateProductInput,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getProductStats,
+};
