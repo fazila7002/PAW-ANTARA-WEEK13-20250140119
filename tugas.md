@@ -122,7 +122,7 @@ Customer memasukkan **3 jenis produk** ke keranjang sekaligus (2 + 1 + 3 = 6 bar
 ![Keranjang 3 produk](docs/screenshot/04a-keranjang-3-produk.png)
 
 Setelah checkout, **ketiganya tersimpan dalam 1 invoice** (bukan cuma 1 yang kepesan),
-total Rp960.000:
+total Rp960.000 (2 kaos + 1 kemeja + 3 sepatu):
 
 ![Invoice multiple order](docs/screenshot/04b-invoice-multiple-order.png)
 
@@ -130,19 +130,22 @@ Bukti dari database — 1 baris di `orders`, 3 baris di `order_items`, dan stok 
 produk berkurang sesuai jumlah yang dipesan:
 
 ```
-=== ORDERS ===
-{"id":4,"buyerName":"Budi Santoso","total":695000,"status":"dikirim","source":"web"}
+=== ORDERS (1 baris header) ===
+{"id":34,"buyerName":"Budi Santoso","total":960000,"status":"diproses","source":"web"}
 
-=== ORDER ITEMS (3 baris untuk 1 order) ===
-{"orderId":4,"productName":"Kaos Polos Cotton Combed A","price":75000,"quantity":2}
-{"orderId":4,"productName":"Kaos Polos Cotton Combed B","price":95000,"quantity":1}
-{"orderId":4,"productName":"Kemeja Flanel Kotak","price":150000,"quantity":3}
+=== ORDER ITEMS (3 baris untuk 1 order yang sama) ===
+{"orderId":34,"productName":"Kaos Polos Cotton Combed A","price":75000,"quantity":2}
+{"orderId":34,"productName":"Kemeja Flanel Kotak","price":150000,"quantity":1}
+{"orderId":34,"productName":"Sepatu Sneakers Canvas","price":220000,"quantity":3}
 
-=== STOK SESUDAH ORDER (ikut berkurang) ===
-{"name":"Kaos Polos Cotton Combed A","stock":46}
-{"name":"Kaos Polos Cotton Combed B","stock":26}
-{"name":"Kemeja Flanel Kotak","stock":8}
+=== STOK SESUDAH ORDER (ikut berkurang sesuai qty) ===
+{"name":"Kaos Polos Cotton Combed A","stock":48}   // 50 - 2
+{"name":"Kemeja Flanel Kotak","stock":19}          // 20 - 1
+{"name":"Sepatu Sneakers Canvas","stock":27}       // 30 - 3
 ```
+
+Total Rp960.000 = (2 × Rp75.000) + (1 × Rp150.000) + (3 × Rp220.000) — cocok dengan
+yang tampil di invoice.
 
 Daftar pesanan sisi customer (cuma pesanan miliknya sendiri):
 
